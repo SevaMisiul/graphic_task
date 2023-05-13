@@ -2,7 +2,8 @@ program Graphic;
 
 uses
   Vcl.Forms,
-  MainUnit in 'MainUnit.pas' {MainFrom};
+  MainUnit in 'MainUnit.pas' {MainFrom},
+  SkierUnit in 'SkierUnit.pas';
 
 {$R *.res}
 
