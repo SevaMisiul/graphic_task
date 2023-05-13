@@ -6,6 +6,7 @@ object MainFrom: TMainFrom
   ClientHeight = 421
   ClientWidth = 862
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -14,7 +15,9 @@ object MainFrom: TMainFrom
   Menu = menuMain
   OldCreateOrder = False
   Position = poScreenCenter
+  Visible = True
   WindowState = wsMaximized
+  OnCreate = FormCreate
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
@@ -24,15 +27,16 @@ object MainFrom: TMainFrom
     Width = 862
     Height = 421
     Align = alClient
+    OnPaint = pbAnimatePaint
     ExplicitLeft = 568
     ExplicitTop = 232
     ExplicitWidth = 105
     ExplicitHeight = 105
   end
   object Button1: TButton
-    Left = 680
-    Top = 160
-    Width = 75
+    Left = 616
+    Top = 176
+    Width = 65
     Height = 25
     Caption = 'Button1'
     TabOrder = 0
