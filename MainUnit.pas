@@ -18,12 +18,12 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure pbAnimatePaint(Sender: TObject);
-    procedure SetPen(var colP, colB: TColor; var pW: Word);
+    procedure SetPen(var colP, colB: TColor; var pW: SmallInt);
   private
     FIsCreating: Boolean;
     FBuff: TBitMap;
     FSkier: TSkier;
-    procedure DrawTree(XL, YD, Count: Word);
+    procedure DrawTree(XL, YD, Count: SmallInt);
   public
     destructor Destroy; overload;
     procedure DrawBackground;
@@ -38,7 +38,6 @@ implementation
 
 procedure TMainFrom.Button1Click(Sender: TObject);
 begin
-  FSkier.Draw(400, 400);
   pbAnimate.Invalidate;
 end;
 
@@ -51,14 +50,15 @@ end;
 
 procedure TMainFrom.DrawBackground;
 var
-  X, Y: Word;
+  X, Y, rW, trC: Word;
+  I: Integer;
 begin
   with FBuff, FBuff.Canvas do
   begin
     MoveTo(0, ClientHeight div 6);
-    LineTo(ClientWidth - ClientWidth * 2 div 5, ClientHeight);
+    LineTo(ClientWidth * 3 div 5, ClientHeight);
     MoveTo(ClientHeight div 6, 0);
-    LineTo(ClientWidth, ClientHeight - ClientHeight * 2 div 5);
+    LineTo(ClientWidth, ClientHeight * 3 div 5);
 
     X := 0;
     Y := 0;
@@ -72,13 +72,26 @@ begin
       Inc(Y, ClientHeight div 12);
     end;
 
-    DrawTree(800, 400, 3);
+    for I := 1 to 7 do
+    begin
+      rW := ClientWidth * I div 7;
+      DrawTree(rW, -Round(rW * (3 / 5) * ClientHeight / (ClientHeight / 6 - ClientWidth) -
+        (sqr(ClientHeight) / (10 * (ClientHeight / 6 - ClientWidth)))) - ClientHeight div 40, 3 + I mod 2);
+    end;
+
+    for I := 0 to 4 do
+    begin
+      rW := ClientWidth * I div 10 + ClientWidth div 20;
+      trC := 3 + I mod 2;
+      DrawTree(rW, ClientHeight - Round(rW * (-5 / 6) * ClientHeight / ((3 / 5) * ClientWidth) + 5 / 6 * ClientHeight -
+        19 * ClientHeight div 60), trC);
+    end;
   end;
 end;
 
-procedure TMainFrom.DrawTree(XL, YD, Count: Word);
+procedure TMainFrom.DrawTree(XL, YD, Count: SmallInt);
 var
-  H, W, XR, YT, XM, pW: Word;
+  H, W, XR, YT, XM, pW: SmallInt;
   I: Integer;
   colP, colB: TColor;
 begin
@@ -130,11 +143,13 @@ end;
 
 procedure TMainFrom.pbAnimatePaint(Sender: TObject);
 begin
-  pbAnimate.Canvas.Draw(0, 0, FBuff);
+  FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
+  FSkier.Draw(400, 400);
   DrawBackground;
+  pbAnimate.Canvas.Draw(0, 0, FBuff);
 end;
 
-procedure TMainFrom.SetPen(var colP, colB: TColor; var pW: Word);
+procedure TMainFrom.SetPen(var colP, colB: TColor; var pW: SmallInt);
 var
   tmpColP, tmpColB: TColor;
   tmpPW: Word;

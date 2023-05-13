@@ -67,9 +67,10 @@ begin
     MoveTo(X, Y);
     LineTo(X, Y - FBodyLen);
     LineTo(X - FShoulder.X, Y - FBodyLen + FShoulder.Y);
-    LineTo(X - FShoulder.X - FForearm.X, Y - FBodyLen + FShoulder.Y + FForearm.Y);
-    LineTo(X - FShoulder.X - FForearm.X + FArm.X, Y - FBodyLen + FShoulder.Y + FForearm.Y + FArm.Y);
-    LineTo(X - FShoulder.X - FForearm.X + FArm.X, Y - FBodyLen + FShoulder.Y + FForearm.Y + FArm.Y - 5);
+    LineTo(X - FShoulder.X - FForearm.X + FForearm.X div 2, Y - FBodyLen + FShoulder.Y + FForearm.Y);
+    LineTo(X - FShoulder.X - FForearm.X + FForearm.X div 2 + FArm.X, Y - FBodyLen + FShoulder.Y + FForearm.Y + FArm.Y);
+    LineTo(X - FShoulder.X - FForearm.X + FForearm.X div 2 + FArm.X + 3, Y - FBodyLen + FShoulder.Y + FForearm.Y +
+      FArm.Y - 10);
     LineTo(X - FLegU.X - 30, Y + FLegU.Y + FLegLenL + 30);
 
     MoveTo(X, Y - FBodyLen);
@@ -77,8 +78,8 @@ begin
     LineTo(X + FShoulder.X + FForearm.X, Y - FBodyLen - FShoulder.Y + FForearm.Y);
     LineTo(X + FShoulder.X + FForearm.X + FArm.X + FArm.X div 4, Y - FBodyLen - FShoulder.Y + FForearm.Y +
       FArm.Y div 2);
-    LineTo(X + FShoulder.X + FForearm.X + FArm.X + FArm.X div 4, Y - FBodyLen - FShoulder.Y + FForearm.Y +
-      FArm.Y div 2 - 5);
+    LineTo(X + FShoulder.X + FForearm.X + FArm.X + FArm.X div 4 + 3, Y - FBodyLen - FShoulder.Y + FForearm.Y +
+      FArm.Y div 2 - 10);
     LineTo(X + FLegU.X + 20, Y + FLegU.Y + FLegLenL - 30);
 
     MoveTo(X, Y - FBodyLen);
