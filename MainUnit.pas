@@ -1,11 +1,8 @@
 unit MainUnit;
-
 interface
-
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls;
-
 type
   TMainFrom = class(TForm)
     pbAnimate: TPaintBox;
@@ -29,26 +26,19 @@ type
     destructor Destroy; overload;
     procedure DrawBackground;
   end;
-
 var
   MainFrom: TMainFrom;
-
 implementation
-
 {$R *.dfm}
-
 procedure TMainFrom.Button1Click(Sender: TObject);
 begin
   pbAnimate.Invalidate;
 end;
-
 destructor TMainFrom.Destroy;
 begin
   FBuff.Destroy;
-
   inherited Destroy;
 end;
-
 procedure TMainFrom.DrawBackground;
 var
   X, Y, rW, trC: Word;
@@ -60,7 +50,6 @@ begin
     LineTo(ClientWidth * 3 div 5, ClientHeight);
     MoveTo(ClientHeight div 6, 0);
     LineTo(ClientWidth, ClientHeight * 3 div 5);
-
     X := 0;
     Y := 0;
     while X < ClientWidth do
@@ -72,14 +61,12 @@ begin
       Inc(X, ClientWidth div 12);
       Inc(Y, ClientHeight div 12);
     end;
-
     for I := 1 to 7 do
     begin
       rW := ClientWidth * I div 7;
       DrawTree(rW, -Round(rW * (3 / 5) * ClientHeight / (ClientHeight / 6 - ClientWidth) -
         (sqr(ClientHeight) / (10 * (ClientHeight / 6 - ClientWidth)))) - ClientHeight div 40, 3 + I mod 2);
     end;
-
     for I := 0 to 4 do
     begin
       rW := ClientWidth * I div 10 + ClientWidth div 20;
@@ -89,9 +76,7 @@ begin
     end;
   end;
 end;
-
 procedure TMainFrom.DrawFinishGates;
-
 procedure TextOutAngle(X, Y, aAngle, aSize: Integer; Txt: String);
 var
   hFont, Fontold: integer;
@@ -110,16 +95,14 @@ begin
   SelectObject(DC, Fontold);
   DeleteObject(hFont);
 end;
-
 var
   pW, LX, RX, LY, RY: SmallInt;
   colP, colB: TColor;
 begin
   pW := 10;
   colP := 0;
-  colB := 0;
+  colB := $3F00CF;
   SetPen(colP, colB, pW);
-
   LX := ClientWidth * 3 div 5;
   LY := ClientHeight div 3;
   RX := ClientWidth - 10;
@@ -132,9 +115,10 @@ begin
     LineTo(RX, RY);
     MoveTo(LX, LY + ClientHeight div 7);
     LineTo(RX, ClientHeight div 7);
-
+    Polygon([Point(LX, LY), Point(LX, LY + ClientHeight div 7), Point(RX, ClientHeight div 7), Point(RX, 0)]);
   end;
   TextOutAngle(LX + (RX - LX) div 3, LY - (LY - ClientHeight div 7) div 2, 26, (LY - ClientHeight div 7) div 2, 'FINISH');
+
   SetPen(colP, colB, pW);
 end;
 
@@ -148,7 +132,6 @@ begin
   colB := 51;
   pW := 3;
   SetPen(colP, colB, pW);
-
   H := ClientHeight;
   W := ClientWidth;
   with FBuff, FBuff.Canvas do
@@ -167,15 +150,12 @@ begin
       Dec(H, H div 40);
     end;
   end;
-
   SetPen(colP, colB, pW);
 end;
-
 procedure TMainFrom.FormCreate(Sender: TObject);
 begin
   FIsCreating := True;
 end;
-
 procedure TMainFrom.FormResize(Sender: TObject);
 begin
   if FIsCreating then
@@ -187,9 +167,7 @@ begin
     Constraints.MinWidth := Screen.Width;
     Constraints.MinHeight := Screen.Height;
   end;
-
 end;
-
 procedure TMainFrom.pbAnimatePaint(Sender: TObject);
 begin
   FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
@@ -198,7 +176,6 @@ begin
   DrawFinishGates;
   pbAnimate.Canvas.Draw(0, 0, FBuff);
 end;
-
 procedure TMainFrom.SetPen(var colP, colB: TColor; var pW: SmallInt);
 var
   tmpColP, tmpColB: TColor;
@@ -209,15 +186,12 @@ begin
     tmpColP := Pen.Color;
     tmpColB := Brush.Color;
     tmpPW := Pen.Width;
-
     Pen.Color := colP;
     Brush.Color := colB;
     Pen.Width := pW;
-
     colP := tmpColP;
     colB := tmpColB;
     pW := tmpPW;
   end;
 end;
-
 end.
