@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls,
+  Vcl.MPlayer;
 
 type
   TMainFrom = class(TForm)
@@ -13,6 +14,7 @@ type
     menuRunAnimation: TMenuItem;
     alActions: TActionList;
     actRunAnimation: TAction;
+    MediaPlayer1: TMediaPlayer;
     procedure FormResize(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure pbAnimatePaint(Sender: TObject);
@@ -118,37 +120,26 @@ begin
 end;
 
 procedure TMainFrom.DrawFinishGates;
-  procedure TextOutAngle(X, Y, aAngle, aSize: Integer; Txt: String);
-  var
-    hFont, Fontold: Integer;
-    DC: hdc;
-    Fontname: string;
+
+  function TopLine(X: Integer): Integer;
   begin
-    if length(Txt) <> 0 then
-    begin
-      DC := Screen.ActiveForm.Canvas.handle;
-      SetBkMode(DC, transparent);
-      Fontname := Screen.ActiveForm.Canvas.Font.name;
-      hFont := CreateFont(-aSize, 0, aAngle * 10, 0, fw_normal, 0, 0, 0, 1, 4, $10, 2, 4, PChar(Fontname));
-      Fontold := SelectObject(DC, hFont);
-      TextOut(DC, X, Y, PChar(Txt), length(Txt));
-      SelectObject(DC, Fontold);
-      DeleteObject(hFont);
-    end;
+    Result := Round(((ClientHeight div 3) * (ClientWidth * 3 div 5 - X)) / (ClientWidth - 10 - ClientWidth * 3 div 5)) + ClientHeight div 3;
   end;
 
 var
-  pW, LX, RX, LY, RY: SmallInt;
+  pW, LX, RX, LY, RY, TxtHeight, LetterWidth: SmallInt;
   colP, colB: TColor;
 begin
   pW := 10;
   colP := 0;
   colB := $3F00CF;
   SetPen(colP, colB, pW);
+
   LX := ClientWidth * 3 div 5;
   LY := ClientHeight div 3;
   RX := ClientWidth - 10;
   RY := ClientHeight * 3 div 5;
+
   with FBuff.Canvas do
   begin
     MoveTo(LX, ClientHeight);
@@ -158,9 +149,52 @@ begin
     MoveTo(LX, LY + ClientHeight div 7);
     LineTo(RX, ClientHeight div 7);
     Polygon([Point(LX, LY), Point(LX, LY + ClientHeight div 7), Point(RX, ClientHeight div 7), Point(RX, 0)]);
+
+    LetterWidth := (RX - LX) div ('FINISH'.Length + 12);
+    TxtHeight := ClientHeight div 20;
+
+      Inc(LX, (RX - LX) div 3);                               {F}
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+      MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+      LineTo(LX + LetterWidth div 2, TopLine(LX + LetterWidth div 2) + 2 * ClientHeight div 30);
+
+      Inc(LX, ClientWidth div 30);                                          {I}
+      Dec(LY, LetterWidth);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+
+      Inc(LX, ClientWidth div 50);                                   {N}
+      Dec(LY, LetterWidth div 2);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 20 + TxtHeight);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30 );
+
+      Inc(LX, ClientWidth div 25);                                          {I}
+      Dec(LY, LetterWidth);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+
+      Inc(LX, ClientWidth div 50);                                          {S}
+      Dec(LY, LetterWidth div 2);
+      MoveTo(LX, LY);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight div 2);
+      LineTo(LX, TopLine(LX) + 2 * ClientHeight div 28);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 31);
+
+      Inc(LX, ClientWidth div 30);                                          {H}
+      Dec(LY, ClientHeight div 30);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+     MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+     LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + 2 * ClientHeight div 30);
+      MoveTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+      LineTo(LX + LetterWidth , TopLine(LX + LetterWidth) + ClientHeight div 25 + TxtHeight);
   end;
-  TextOutAngle(LX + (RX - LX) div 3, LY - (LY - ClientHeight div 7) div 2, 26, (LY - ClientHeight div 7) div 2,
-    'FINISH');
 
   SetPen(colP, colB, pW);
 end;

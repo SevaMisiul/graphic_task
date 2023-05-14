@@ -33,6 +33,13 @@ object MainFrom: TMainFrom
     ExplicitWidth = 105
     ExplicitHeight = 105
   end
+  object MediaPlayer1: TMediaPlayer
+    Left = 480
+    Top = 112
+    Width = 253
+    Height = 30
+    TabOrder = 0
+  end
   object menuMain: TMainMenu
     Left = 112
     Top = 104
