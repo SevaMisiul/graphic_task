@@ -4,10 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls,
+  FanUnit;
 
 type
-  TMainFrom = class(TForm)
+  TMainForm = class(TForm)
     pbAnimate: TPaintBox;
     menuMain: TMainMenu;
     menuRunAnimation: TMenuItem;
@@ -16,7 +17,6 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure pbAnimatePaint(Sender: TObject);
-    procedure SetPen(var colP, colB: TColor; var pW: SmallInt);
     procedure actRunAnimationExecute(Sender: TObject);
     procedure Animate(Sender: TObject);
   private
@@ -24,31 +24,35 @@ type
     FIsCreating: Boolean;
     FBuff: TBitMap;
     FSkier: TSkier;
+    FFanArr: array [1 .. 14] of TFan;
     procedure ComleteAnimation;
     procedure DrawTree(XL, YD, Count: SmallInt);
     procedure DrawFinishGates;
+    procedure DrawFans(tDelta: Integer);
   public
     destructor Destroy; overload;
     procedure DrawBackground;
+    procedure SetPen(var colP, colB: TColor; var pW: SmallInt; var Bmp: TBitMap);
   end;
 
 var
-  MainFrom: TMainFrom;
+  MainForm: TMainForm;
 
 implementation
 
 {$R *.dfm}
 
-procedure TMainFrom.actRunAnimationExecute(Sender: TObject);
+procedure TMainForm.actRunAnimationExecute(Sender: TObject);
 begin
   pbAnimate.OnPaint := Animate;
   FStartTime := GetTickCount;
   Invalidate;
 end;
 
-procedure TMainFrom.Animate(Sender: TObject);
+procedure TMainForm.Animate(Sender: TObject);
 var
-  tDelta, X, Y: Integer;
+  tDelta, X, Y, rW, I, cl: Integer;
+  Angle: Double;
 begin
   tDelta := GetTickCount - FStartTime;
   if tDelta >= 15000 then
@@ -57,28 +61,31 @@ begin
   begin
     FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
     X := Round(ClientWidth * 4 div 5 * tDelta / 15000);
-    FSkier.Draw(X, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 10 div 11),
-      1 + 1.8 * tDelta / 15000);
+    Angle := Abs(90 * ((tDelta div 1000) mod 2) - 90 * (tDelta mod 1000) / 1000);
+    FSkier.Draw(X, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 13 div 14),
+      1 + 1.8 * tDelta / 15000, Angle);
+    DrawFans(tDelta);
     DrawBackground;
     pbAnimate.Canvas.Draw(0, 0, FBuff);
+
     Sleep(0);
     pbAnimate.Invalidate;
   end;
 end;
 
-procedure TMainFrom.ComleteAnimation;
+procedure TMainForm.ComleteAnimation;
 begin
   pbAnimate.OnPaint := pbAnimatePaint;
   pbAnimate.Invalidate;
 end;
 
-destructor TMainFrom.Destroy;
+destructor TMainForm.Destroy;
 begin
   FBuff.Destroy;
   inherited Destroy;
 end;
 
-procedure TMainFrom.DrawBackground;
+procedure TMainForm.DrawBackground;
 var
   X, Y, rW, trC: Word;
   I: Integer;
@@ -113,42 +120,70 @@ begin
       DrawTree(rW, ClientHeight - Round(rW * (-5 / 6) * ClientHeight / ((3 / 5) * ClientWidth) + 5 / 6 * ClientHeight -
         19 * ClientHeight div 60), trC);
     end;
+
     DrawFinishGates;
   end;
 end;
 
-procedure TMainFrom.DrawFinishGates;
-  procedure TextOutAngle(X, Y, aAngle, aSize: Integer; Txt: String);
-  var
-    hFont, Fontold: Integer;
-    DC: hdc;
-    Fontname: string;
+procedure TMainForm.DrawFans(tDelta: Integer);
+var
+  rW, I, cl: Integer;
+begin
+  for I := 2 to 6 do
   begin
-    if length(Txt) <> 0 then
-    begin
-      DC := Screen.ActiveForm.Canvas.handle;
-      SetBkMode(DC, transparent);
-      Fontname := Screen.ActiveForm.Canvas.Font.name;
-      hFont := CreateFont(-aSize, 0, aAngle * 10, 0, fw_normal, 0, 0, 0, 1, 4, $10, 2, 4, PChar(Fontname));
-      Fontold := SelectObject(DC, hFont);
-      TextOut(DC, X, Y, PChar(Txt), length(Txt));
-      SelectObject(DC, Fontold);
-      DeleteObject(hFont);
+    rW := ClientWidth div 13 + ClientWidth * I div 7;
+    case I mod 3 of
+      0:
+        cl := clRed;
+      1:
+        cl := clBlue;
+      2:
+        cl := clYellow;
     end;
+    FFanArr[I - 1].Draw(rW, ClientHeight - Round(rW * (3 / 5) * ClientHeight / (ClientHeight / 6 - ClientWidth) +
+      ClientHeight - sqr(ClientHeight) / (10 * (ClientHeight / 6 - ClientWidth)) + (0.8 + 0.4 * I) * 40),
+      Abs(Round(100 * (tDelta div 1000 mod 2) - 100 * (tDelta mod 1000) / 1000)), cl, True, 0.8 + 0.3 * I);
+  end;
+
+  for I := 1 to 4 do
+  begin
+    rW := ClientWidth * I div 10 + ClientWidth div 30;
+    case I mod 3 of
+      0:
+        cl := clRed;
+      1:
+        cl := clBlue;
+      2:
+        cl := clYellow;
+    end;
+    FFanArr[I + 5].Draw(rW, ClientHeight - Round(rW * (-25 / 18 * ClientHeight / ClientWidth) + 5 / 6 * ClientHeight -
+      (0.8 + 0.6 * I) * 110), Abs(Round(100 * (tDelta div 1000 mod 2) - 100 * (tDelta mod 1000) / 1000)), cl, False,
+      0.8 + 0.6 * I);
+  end;
+end;
+
+procedure TMainForm.DrawFinishGates;
+
+  function TopLine(X: Integer): Integer;
+  begin
+    Result := Round(((ClientHeight div 3) * (ClientWidth * 3 div 5 - X)) / (ClientWidth - 10 - ClientWidth * 3 div 5)) +
+      ClientHeight div 3;
   end;
 
 var
-  pW, LX, RX, LY, RY: SmallInt;
+  pW, LX, RX, LY, RY, TxtHeight, LetterWidth: SmallInt;
   colP, colB: TColor;
 begin
   pW := 10;
   colP := 0;
   colB := $3F00CF;
-  SetPen(colP, colB, pW);
+  SetPen(colP, colB, pW, FBuff);
+
   LX := ClientWidth * 3 div 5;
   LY := ClientHeight div 3;
   RX := ClientWidth - 10;
   RY := ClientHeight * 3 div 5;
+
   with FBuff.Canvas do
   begin
     MoveTo(LX, ClientHeight);
@@ -158,14 +193,57 @@ begin
     MoveTo(LX, LY + ClientHeight div 7);
     LineTo(RX, ClientHeight div 7);
     Polygon([Point(LX, LY), Point(LX, LY + ClientHeight div 7), Point(RX, ClientHeight div 7), Point(RX, 0)]);
-  end;
-  TextOutAngle(LX + (RX - LX) div 3, LY - (LY - ClientHeight div 7) div 2, 26, (LY - ClientHeight div 7) div 2,
-    'FINISH');
 
-  SetPen(colP, colB, pW);
+    LetterWidth := (RX - LX) div ('FINISH'.Length + 12);
+    TxtHeight := ClientHeight div 20;
+
+    Inc(LX, (RX - LX) div 3); { F }
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+    MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+    LineTo(LX + LetterWidth div 2, TopLine(LX + LetterWidth div 2) + 2 * ClientHeight div 30);
+
+    Inc(LX, ClientWidth div 30); { I }
+    Dec(LY, LetterWidth);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+
+    Inc(LX, ClientWidth div 50); { N }
+    Dec(LY, LetterWidth div 2);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 20 + TxtHeight);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+
+    Inc(LX, ClientWidth div 25); { I }
+    Dec(LY, LetterWidth);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+
+    Inc(LX, ClientWidth div 50); { S }
+    Dec(LY, LetterWidth div 3);
+    MoveTo(LX, LY);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 23 + TxtHeight);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 23 + TxtHeight div 2);
+    LineTo(LX, TopLine(LX) + 2 * ClientHeight div 28);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 31);
+
+    Inc(LX, ClientWidth div 30); { H }
+    Dec(LY, ClientHeight div 30);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + 2 * ClientHeight div 30);
+    MoveTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 25 + TxtHeight);
+
+  end;
+  SetPen(colP, colB, pW, FBuff);
 end;
 
-procedure TMainFrom.DrawTree(XL, YD, Count: SmallInt);
+procedure TMainForm.DrawTree(XL, YD, Count: SmallInt);
 var
   H, W, XR, YT, XM, pW: SmallInt;
   I: Integer;
@@ -174,7 +252,7 @@ begin
   colP := 51;
   colB := 51;
   pW := 3;
-  SetPen(colP, colB, pW);
+  SetPen(colP, colB, pW, FBuff);
   H := ClientHeight;
   W := ClientWidth;
   with FBuff, FBuff.Canvas do
@@ -193,41 +271,46 @@ begin
       Dec(H, H div 40);
     end;
   end;
-  SetPen(colP, colB, pW);
+  SetPen(colP, colB, pW, FBuff);
 end;
 
-procedure TMainFrom.FormCreate(Sender: TObject);
+procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FIsCreating := True;
 end;
 
-procedure TMainFrom.FormResize(Sender: TObject);
+procedure TMainForm.FormResize(Sender: TObject);
+var
+  X, Y, I: Integer;
 begin
   if FIsCreating then
   begin
     FBuff := TBitMap.Create;
     FBuff.SetSize(pbAnimate.Width, pbAnimate.Height);
-    FSkier := TSkier.Create(FBuff);
+    X := 0;
+    Y := ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 13 div 14);
+    FSkier := TSkier.Create(FBuff, X, Y);
+    for I := 1 to 14 do
+      FFanArr[I] := TFan.Create(FBuff);
     FIsCreating := False;
     Constraints.MinWidth := Screen.Width;
     Constraints.MinHeight := Screen.Height;
   end;
 end;
 
-procedure TMainFrom.pbAnimatePaint(Sender: TObject);
+procedure TMainForm.pbAnimatePaint(Sender: TObject);
 begin
   FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
   DrawBackground;
-  FSkier.Draw(1800, 1000, 2.3);
   pbAnimate.Canvas.Draw(0, 0, FBuff);
 end;
 
-procedure TMainFrom.SetPen(var colP, colB: TColor; var pW: SmallInt);
+procedure TMainForm.SetPen(var colP, colB: TColor; var pW: SmallInt; var Bmp: TBitMap);
 var
   tmpColP, tmpColB: TColor;
   tmpPW: Word;
 begin
-  with FBuff, FBuff.Canvas do
+  with Bmp, Bmp.Canvas do
   begin
     tmpColP := Pen.Color;
     tmpColB := Brush.Color;
