@@ -81,6 +81,7 @@ end;
 
 procedure TMainForm.ComleteAnimation;
 begin
+  Player.Stop;
   pbAnimate.OnPaint := pbAnimatePaint;
   pbAnimate.Invalidate;
 end;
