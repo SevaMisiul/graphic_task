@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls,
-  FanUnit;
+  Vcl.MPlayer, FanUnit;
+
 
 type
   TMainForm = class(TForm)
@@ -14,11 +15,13 @@ type
     menuRunAnimation: TMenuItem;
     alActions: TActionList;
     actRunAnimation: TAction;
+    Player: TMediaPlayer;
     procedure FormResize(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure pbAnimatePaint(Sender: TObject);
     procedure actRunAnimationExecute(Sender: TObject);
     procedure Animate(Sender: TObject);
+
   private
     FStartTime: Integer;
     FIsCreating: Boolean;
@@ -45,6 +48,9 @@ implementation
 procedure TMainForm.actRunAnimationExecute(Sender: TObject);
 begin
   pbAnimate.OnPaint := Animate;
+  Player.FileName := 'Music1.mp3';
+  Player.Open;
+  Player.Play;
   FStartTime := GetTickCount;
   Invalidate;
 end;
@@ -75,6 +81,7 @@ end;
 
 procedure TMainForm.ComleteAnimation;
 begin
+  Player.Stop;
   pbAnimate.OnPaint := pbAnimatePaint;
   pbAnimate.Invalidate;
 end;
@@ -179,6 +186,7 @@ begin
   colB := $3F00CF;
   SetPen(colP, colB, pW, FBuff);
 
+
   LX := ClientWidth * 3 div 5;
   LY := ClientHeight div 3;
   RX := ClientWidth - 10;
@@ -197,50 +205,50 @@ begin
     LetterWidth := (RX - LX) div ('FINISH'.Length + 12);
     TxtHeight := ClientHeight div 20;
 
-    Inc(LX, (RX - LX) div 3); { F }
-    MoveTo(LX, LY);
-    LineTo(LX, TopLine(LX) + ClientHeight div 30);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
-    MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
-    LineTo(LX + LetterWidth div 2, TopLine(LX + LetterWidth div 2) + 2 * ClientHeight div 30);
+      Inc(LX, (RX - LX) div 3);                               {F}
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+      MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+      LineTo(LX + LetterWidth div 2, TopLine(LX + LetterWidth div 2) + 2 * ClientHeight div 30);
 
-    Inc(LX, ClientWidth div 30); { I }
-    Dec(LY, LetterWidth);
-    MoveTo(LX, LY);
-    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      Inc(LX, ClientWidth div 30);                                          {I}
+      Dec(LY, LetterWidth);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
 
-    Inc(LX, ClientWidth div 50); { N }
-    Dec(LY, LetterWidth div 2);
-    MoveTo(LX, LY);
-    LineTo(LX, TopLine(LX) + ClientHeight div 30);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 20 + TxtHeight);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+      Inc(LX, ClientWidth div 50);                                   {N}
+      Dec(LY, LetterWidth div 2);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 20 + TxtHeight);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30 );
 
-    Inc(LX, ClientWidth div 25); { I }
-    Dec(LY, LetterWidth);
-    MoveTo(LX, LY);
-    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      Inc(LX, ClientWidth div 25);                                          {I}
+      Dec(LY, LetterWidth);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
 
-    Inc(LX, ClientWidth div 50); { S }
-    Dec(LY, LetterWidth div 3);
-    MoveTo(LX, LY);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 23 + TxtHeight);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 23 + TxtHeight div 2);
-    LineTo(LX, TopLine(LX) + 2 * ClientHeight div 28);
-    LineTo(LX, TopLine(LX) + ClientHeight div 30);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 31);
+      Inc(LX, ClientWidth div 50);                                          {S}
+      Dec(LY, LetterWidth div 2);
+      MoveTo(LX, LY);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight div 2);
+      LineTo(LX, TopLine(LX) + 2 * ClientHeight div 28);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 31);
 
-    Inc(LX, ClientWidth div 30); { H }
-    Dec(LY, ClientHeight div 30);
-    MoveTo(LX, LY);
-    LineTo(LX, TopLine(LX) + ClientHeight div 30);
-    MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + 2 * ClientHeight div 30);
-    MoveTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
-    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 25 + TxtHeight);
-
+      Inc(LX, ClientWidth div 30);                                          {H}
+      Dec(LY, ClientHeight div 30);
+      MoveTo(LX, LY);
+      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+     MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+     LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + 2 * ClientHeight div 30);
+      MoveTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+      LineTo(LX + LetterWidth , TopLine(LX + LetterWidth) + ClientHeight div 25 + TxtHeight);
   end;
   SetPen(colP, colB, pW, FBuff);
+
 end;
 
 procedure TMainForm.DrawTree(XL, YD, Count: SmallInt);

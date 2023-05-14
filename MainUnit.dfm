@@ -33,6 +33,15 @@ object MainForm: TMainForm
     ExplicitWidth = 105
     ExplicitHeight = 105
   end
+  object Player: TMediaPlayer
+    Left = 480
+    Top = 112
+    Width = 253
+    Height = 30
+    Display = Player
+    Visible = False
+    TabOrder = 0
+  end
   object menuMain: TMainMenu
     Left = 112
     Top = 104
