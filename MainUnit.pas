@@ -1,8 +1,11 @@
 unit MainUnit;
+
 interface
+
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls;
+
 type
   TMainFrom = class(TForm)
     pbAnimate: TPaintBox;
@@ -10,35 +13,71 @@ type
     menuRunAnimation: TMenuItem;
     alActions: TActionList;
     actRunAnimation: TAction;
-    Button1: TButton;
     procedure FormResize(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure pbAnimatePaint(Sender: TObject);
     procedure SetPen(var colP, colB: TColor; var pW: SmallInt);
+    procedure actRunAnimationExecute(Sender: TObject);
+    procedure Animate(Sender: TObject);
   private
+    FStartTime: Integer;
     FIsCreating: Boolean;
     FBuff: TBitMap;
     FSkier: TSkier;
+    procedure ComleteAnimation;
     procedure DrawTree(XL, YD, Count: SmallInt);
     procedure DrawFinishGates;
   public
     destructor Destroy; overload;
     procedure DrawBackground;
   end;
+
 var
   MainFrom: TMainFrom;
+
 implementation
+
 {$R *.dfm}
-procedure TMainFrom.Button1Click(Sender: TObject);
+
+procedure TMainFrom.actRunAnimationExecute(Sender: TObject);
 begin
+  pbAnimate.OnPaint := Animate;
+  FStartTime := GetTickCount;
+  Invalidate;
+end;
+
+procedure TMainFrom.Animate(Sender: TObject);
+var
+  tDelta, X, Y: Integer;
+begin
+  tDelta := GetTickCount - FStartTime;
+  if tDelta >= 15000 then
+    ComleteAnimation
+  else
+  begin
+    FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
+    X := Round(ClientWidth * 4 div 5 * tDelta / 15000);
+    FSkier.Draw(X, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 10 div 11),
+      1 + 1.8 * tDelta / 15000);
+    DrawBackground;
+    pbAnimate.Canvas.Draw(0, 0, FBuff);
+    Sleep(0);
+    pbAnimate.Invalidate;
+  end;
+end;
+
+procedure TMainFrom.ComleteAnimation;
+begin
+  pbAnimate.OnPaint := pbAnimatePaint;
   pbAnimate.Invalidate;
 end;
+
 destructor TMainFrom.Destroy;
 begin
   FBuff.Destroy;
   inherited Destroy;
 end;
+
 procedure TMainFrom.DrawBackground;
 var
   X, Y, rW, trC: Word;
@@ -61,7 +100,7 @@ begin
       Inc(X, ClientWidth div 12);
       Inc(Y, ClientHeight div 12);
     end;
-    for I := 1 to 7 do
+    for I := 2 to 7 do
     begin
       rW := ClientWidth * I div 7;
       DrawTree(rW, -Round(rW * (3 / 5) * ClientHeight / (ClientHeight / 6 - ClientWidth) -
@@ -74,27 +113,30 @@ begin
       DrawTree(rW, ClientHeight - Round(rW * (-5 / 6) * ClientHeight / ((3 / 5) * ClientWidth) + 5 / 6 * ClientHeight -
         19 * ClientHeight div 60), trC);
     end;
+    DrawFinishGates;
   end;
 end;
+
 procedure TMainFrom.DrawFinishGates;
-procedure TextOutAngle(X, Y, aAngle, aSize: Integer; Txt: String);
-var
-  hFont, Fontold: integer;
-  DC: hdc;
-  Fontname: string;
-begin
-  if length(txt) = 0 then
-    Exit;
-  DC:= Screen.ActiveForm.Canvas.handle;
-  SetBkMode(DC, transparent);
-  Fontname:= Screen.ActiveForm.Canvas.Font.name;
-  hFont:= CreateFont(-aSize,0, aAngle*10,0, fw_normal,0, 0,
-  0,1,4,$10,2,4,PChar(Fontname));
-  Fontold:= SelectObject(DC, hFont);
-  TextOut(DC,x,y,PChar(txt), length(txt));
-  SelectObject(DC, Fontold);
-  DeleteObject(hFont);
-end;
+  procedure TextOutAngle(X, Y, aAngle, aSize: Integer; Txt: String);
+  var
+    hFont, Fontold: Integer;
+    DC: hdc;
+    Fontname: string;
+  begin
+    if length(Txt) <> 0 then
+    begin
+      DC := Screen.ActiveForm.Canvas.handle;
+      SetBkMode(DC, transparent);
+      Fontname := Screen.ActiveForm.Canvas.Font.name;
+      hFont := CreateFont(-aSize, 0, aAngle * 10, 0, fw_normal, 0, 0, 0, 1, 4, $10, 2, 4, PChar(Fontname));
+      Fontold := SelectObject(DC, hFont);
+      TextOut(DC, X, Y, PChar(Txt), length(Txt));
+      SelectObject(DC, Fontold);
+      DeleteObject(hFont);
+    end;
+  end;
+
 var
   pW, LX, RX, LY, RY: SmallInt;
   colP, colB: TColor;
@@ -117,7 +159,8 @@ begin
     LineTo(RX, ClientHeight div 7);
     Polygon([Point(LX, LY), Point(LX, LY + ClientHeight div 7), Point(RX, ClientHeight div 7), Point(RX, 0)]);
   end;
-  TextOutAngle(LX + (RX - LX) div 3, LY - (LY - ClientHeight div 7) div 2, 26, (LY - ClientHeight div 7) div 2, 'FINISH');
+  TextOutAngle(LX + (RX - LX) div 3, LY - (LY - ClientHeight div 7) div 2, 26, (LY - ClientHeight div 7) div 2,
+    'FINISH');
 
   SetPen(colP, colB, pW);
 end;
@@ -152,10 +195,12 @@ begin
   end;
   SetPen(colP, colB, pW);
 end;
+
 procedure TMainFrom.FormCreate(Sender: TObject);
 begin
   FIsCreating := True;
 end;
+
 procedure TMainFrom.FormResize(Sender: TObject);
 begin
   if FIsCreating then
@@ -168,14 +213,15 @@ begin
     Constraints.MinHeight := Screen.Height;
   end;
 end;
+
 procedure TMainFrom.pbAnimatePaint(Sender: TObject);
 begin
   FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
-  FSkier.Draw(400, 400);
   DrawBackground;
-  DrawFinishGates;
+  FSkier.Draw(1800, 1000, 2.3);
   pbAnimate.Canvas.Draw(0, 0, FBuff);
 end;
+
 procedure TMainFrom.SetPen(var colP, colB: TColor; var pW: SmallInt);
 var
   tmpColP, tmpColB: TColor;
@@ -194,4 +240,5 @@ begin
     pW := tmpPW;
   end;
 end;
+
 end.

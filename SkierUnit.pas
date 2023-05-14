@@ -19,7 +19,7 @@ type
   public
     constructor Create(const ParentBmp: TBitMap);
     destructor Destroy; overload;
-    procedure Draw(X, Y: Word);
+    procedure Draw(X, Y: Word; Sc: Single);
     procedure Scale(Scale: Single);
 
     property Bmp: TBitMap read FBmp;
@@ -42,9 +42,9 @@ begin
   inherited Destroy;
 end;
 
-procedure TSkier.Draw(X, Y: Word);
+procedure TSkier.Draw(X, Y: Word; Sc: Single);
 begin
-  Scale(1.8);
+  Scale(Sc);
   with Bmp, Bmp.Canvas do
   begin
     Pen.Width := 2;
