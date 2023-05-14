@@ -149,7 +149,7 @@ begin
     end;
     FFanArr[I - 1].Draw(rW, ClientHeight - Round(rW * (3 / 5) * ClientHeight / (ClientHeight / 6 - ClientWidth) +
       ClientHeight - sqr(ClientHeight) / (10 * (ClientHeight / 6 - ClientWidth)) + (0.8 + 0.4 * I) * 40),
-      Abs(Round(100 * (tDelta div 1000 mod 2) - 100 * (tDelta mod 1000) / 1000)), cl, True, 0.8 + 0.3 * I);
+      Abs(Round(45 * (tDelta div 1000 mod 2) - 45 * (tDelta mod 1000) / 1000)), cl, True, 0.8 + 0.3 * I);
   end;
 
   for I := 1 to 4 do
@@ -164,7 +164,7 @@ begin
         cl := clYellow;
     end;
     FFanArr[I + 5].Draw(rW, ClientHeight - Round(rW * (-25 / 18 * ClientHeight / ClientWidth) + 5 / 6 * ClientHeight -
-      (0.8 + 0.6 * I) * 110), Abs(Round(100 * (tDelta div 1000 mod 2) - 100 * (tDelta mod 1000) / 1000)), cl, False,
+      (0.8 + 0.6 * I) * 110), Abs(Round(45 * (tDelta div 1000 mod 2) - 45 * (tDelta mod 1000) / 1000)), cl, False,
       0.8 + 0.6 * I);
   end;
 end;
@@ -230,7 +230,7 @@ begin
       LineTo(LX, TopLine(LX) + ClientHeight div 30);
 
       Inc(LX, ClientWidth div 50);                                          {S}
-      Dec(LY, LetterWidth div 2);
+      Dec(LY, LetterWidth div 3);
       MoveTo(LX, LY);
       LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight);
       LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight div 2);

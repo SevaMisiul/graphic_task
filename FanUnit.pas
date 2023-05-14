@@ -16,7 +16,7 @@ type
     FLeg, FBody, FTablet: TPoint;
     procedure Scale(Sc: Single);
   public
-    procedure Draw(XB, YB, procDown: SmallInt; clTablet: Integer; WithText: Boolean; Sc: Single);
+    procedure Draw(XB, YB, Angel: SmallInt; clTablet: Integer; WithText: Boolean; Sc: Single);
     constructor Create(ParentBmp: TBitMap);
     destructor Destroy; overload;
   end;
@@ -38,7 +38,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TFan.Draw(XB, YB, procDown: SmallInt; clTablet: Integer; WithText: Boolean; Sc: Single);
+procedure TFan.Draw(XB, YB, Angel: SmallInt; clTablet: Integer; WithText: Boolean; Sc: Single);
 var
   pW: SmallInt;
   colP, colB: TColor;
@@ -63,7 +63,7 @@ begin
     MoveTo(XB, YB);
     LineTo(XB - FLeg.X, YB + FLeg.Y);
     // left arm
-    Alpha := ArcCos(procDown / 100) / 2;
+    Alpha := Angel / 180 * Pi;
     MoveTo(XB, -FBodyLen * 4 div 5 + YB);
     LineTo(XB - Round(FArmLen / 2 * Cos(Alpha)), -FBodyLen * 4 div 5 + YB - Round(Sin(Alpha) * FArmLen / 2));
     LineTo(XB - Round(FArmLen / 2 * Cos(Alpha) + Sin(Alpha) * FArmLen / 2),
