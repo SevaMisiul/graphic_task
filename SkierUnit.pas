@@ -13,13 +13,12 @@ type
   private
     FScale: Single;
     FHeadRadius, FBodyLen, FLegLenL, FNeck: Word;
-
-    FArm, FForearm, FShoulder, FLegU, FStick, FSki, FBody: TPoint;
+    FArm, FForearm, FShoulder, FLegU, FStick, FSki, FBody, FStart: TPoint;
     FBmp: TBitMap;
   public
-    constructor Create(const ParentBmp: TBitMap);
+    constructor Create(const ParentBmp: TBitMap; X, Y: integer);
     destructor Destroy; overload;
-    procedure Draw(X, Y: Word; Sc: Single);
+    procedure Draw(X, Y: Word; Sc: Single; angle: Single);
     procedure Scale(Scale: Single);
 
     property Bmp: TBitMap read FBmp;
@@ -29,10 +28,12 @@ implementation
 
 { TSkier }
 
-constructor TSkier.Create(const ParentBmp: TBitMap);
+constructor TSkier.Create(const ParentBmp: TBitMap; X, Y: integer);
 begin
   inherited Create;
   FScale := 1;
+  FStart.X := X - 20 - 50 div 2;
+  FStart.Y := Y + 15 + 50 - 30 div 2;
   Scale(FScale);
   FBmp := ParentBmp;
 end;
@@ -42,50 +43,89 @@ begin
   inherited Destroy;
 end;
 
-procedure TSkier.Draw(X, Y: Word; Sc: Single);
+procedure TSkier.Draw(X, Y: Word; Sc: Single; angle: Single);
 begin
+  angle := angle * Pi / 180;
   Scale(Sc);
   with Bmp, Bmp.Canvas do
   begin
     Pen.Width := 2;
-    MoveTo(X, Y);
-    LineTo(X - FLegU.X, Y + FLegU.Y);
-    LineTo(X - FLegU.X, Y + FLegU.Y + FLegLenL);
-    LineTo(X - FLegU.X - FSki.X div 2, Y + FLegU.Y + FLegLenL - FSki.Y div 2);
-    LineTo(X - FLegU.X + FSki.X, Y + FLegU.Y + FLegLenL + FSki.Y);
-    // Arc(X - FLegU.X + FSki.X , Y + FLegU.Y + FLegLenL + FSki.Y - 10,
-    // X - FLegU.X + FSki.X+10 , Y + FLegU.Y + FLegLenL + FSki.Y,
-    // X - FLegU.X + FSki.X , Y + FLegU.Y + FLegLenL + FSki.Y,
-    // X - FLegU.X + FSki.X + 10 , Y + FLegU.Y + FLegLenL + FSki.Y - 10);
 
     MoveTo(X, Y);
     LineTo(X + FLegU.X, Y + FLegU.Y);
     LineTo(X + FLegU.X, Y + FLegU.Y + FLegLenL);
+    // лыжи
     LineTo(X + FLegU.X - FSki.X div 2, Y + FLegU.Y + FLegLenL - FSki.Y div 2);
+
+    Pen.Width := 5;
+    Pen.Color := Rgb(235, 230, 230);
+    LineTo(FStart.X, FStart.Y - FLegU.X);
+    Pen.Width := 2;
+    Pen.Color := clBlack;
+
+    MoveTo(X + FLegU.X - FSki.X div 2, Y + FLegU.Y + FLegLenL - FSki.Y div 2);
     LineTo(X + FLegU.X + FSki.X, Y + FLegU.Y + FLegLenL + FSki.Y);
 
     MoveTo(X, Y);
-    LineTo(X, Y - FBodyLen);
-    LineTo(X - FShoulder.X, Y - FBodyLen + FShoulder.Y);
-    LineTo(X - FShoulder.X - FForearm.X + FForearm.X div 2, Y - FBodyLen + FShoulder.Y + FForearm.Y);
-    LineTo(X - FShoulder.X - FForearm.X + FForearm.X div 2 + FArm.X, Y - FBodyLen + FShoulder.Y + FForearm.Y + FArm.Y);
-    LineTo(X - FShoulder.X - FForearm.X + FForearm.X div 2 + FArm.X + 3, Y - FBodyLen + FShoulder.Y + FForearm.Y +
-      FArm.Y - 10);
-    LineTo(X - FLegU.X - 30, Y + FLegU.Y + FLegLenL + 30);
+    LineTo(X - FLegU.X, Y + FLegU.Y);
+    LineTo(X - FLegU.X, Y + FLegU.Y + FLegLenL);
+    // лыжи
+    LineTo(X - FLegU.X - FSki.X div 2, Y + FLegU.Y + FLegLenL - FSki.Y div 2);
+    Pen.Width := 5;
+    Pen.Color := Rgb(235, 230, 230);
+    LineTo(FStart.X, FStart.Y);
+    Pen.Width := 2;
+    Pen.Color := clBlack;
+    MoveTo(X - FLegU.X - FSki.X div 2, Y + FLegU.Y + FLegLenL - FSki.Y div 2);
+    LineTo(X - FLegU.X + FSki.X, Y + FLegU.Y + FLegLenL + FSki.Y);
 
-    MoveTo(X, Y - FBodyLen);
-    LineTo(X + FShoulder.X, Y - FBodyLen - FShoulder.Y);
-    LineTo(X + FShoulder.X + FForearm.X, Y - FBodyLen - FShoulder.Y + FForearm.Y);
-    LineTo(X + FShoulder.X + FForearm.X + FArm.X + FArm.X div 4, Y - FBodyLen - FShoulder.Y + FForearm.Y +
-      FArm.Y div 2);
-    LineTo(X + FShoulder.X + FForearm.X + FArm.X + FArm.X div 4 + 3, Y - FBodyLen - FShoulder.Y + FForearm.Y +
-      FArm.Y div 2 - 10);
-    LineTo(X + FLegU.X + 20, Y + FLegU.Y + FLegLenL - 30);
+    // тело
+    MoveTo(X, Y);
+    LineTo(Round(X + 40 * cos(angle)), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle)));
+    // left плечо
+    LineTo(Round(X + 40 * cos(angle) - FShoulder.X), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) + FShoulder.Y));
+    // рука
+    LineTo(Round(X + 40 * cos(angle) - FShoulder.X - (-FForearm.X + FForearm.X div 2) * cos(angle * 5 / 3)),
+      Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) + FShoulder.Y + FForearm.Y + (FForearm.Y div 5) *
+      cos(90 - 4 / 3 * angle)));
+    // предплечье
+    LineTo(Round(X + 40 * cos(angle) - FShoulder.X - (-FForearm.X + FForearm.X div 2) * cos(angle * 5 / 3) + FArm.X *
+      cos(angle * 5 / 6)), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) + FShoulder.Y + FForearm.Y +
+      (FForearm.Y div 5) * cos(90 - 4 / 3 * angle) + FArm.Y + FArm.Y * cos(90 - angle)));
+    // палка вверх
+    LineTo(Round(X + 40 * cos(angle) - FShoulder.X - (-FForearm.X + FForearm.X div 2) * cos(angle * 5 / 3) + FArm.X *
+      cos(angle * 5 / 6) + 3 + 6 * cos(90 - angle)), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) + FShoulder.Y +
+      FForearm.Y + (FForearm.Y div 5) * cos(90 - 7 / 3 * angle) + FArm.Y + FArm.Y * cos(90 - angle) - 5 - 5 *
+      cos(angle)));
+    // палка вниз
+    LineTo(Round(X - FLegU.X - 10 * Sc - 30 * Sc * cos(90 - angle)),
+      Round(Y + FLegU.Y + FLegLenL + 30 - 30 * Sc * cos(90 - angle)));
+    // right
+    MoveTo(Round(X + 40 * cos(angle)), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle)));
+    // плечо
+    LineTo(Round(X + 40 * cos(angle) + FShoulder.X), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) - FShoulder.Y));
+    // рука
+    LineTo(Round(X + 40 * cos(angle) + FShoulder.X + FForearm.X * cos(angle * 5 / 6)),
+      Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) - FShoulder.Y + FForearm.Y + (FForearm.Y div 2) *
+      cos(90 - 4 / 3 * angle)));
+    // предплечье
+    LineTo(Round(X + 40 * cos(angle) + FShoulder.X + FForearm.X * cos(angle * 5 / 6) + (FArm.X + FArm.X div 4) *
+      cos(angle * 5 / 6)), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) - FShoulder.Y + FForearm.Y +
+      (FForearm.Y div 2) * cos(90 - 4 / 3 * angle) + FArm.Y div 2 + 2 * FArm.Y * cos(90 - angle)));
+    // палка вверх
+    LineTo(Round(X + 40 * cos(angle) + FShoulder.X + FForearm.X * cos(angle * 5 / 6) + (FArm.X + FArm.X div 4) *
+      cos(angle * 5 / 6) + 3), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) - FShoulder.Y + FForearm.Y +
+      (FForearm.Y div 2) * cos(90 - 4 / 3 * angle) + FArm.Y div 2 + 2 * FArm.Y * cos(90 - angle) - 10));
+    // палка вниз
+    LineTo(Round(X + 40 * cos(angle) + FLegU.X + 20 - 40 * cos(90 - angle)),
+      Round(Y + FLegU.Y + FLegLenL - 30 - 50 * cos(90 - angle)));
 
-    MoveTo(X, Y - FBodyLen);
-    LineTo(X, Y - FBodyLen - FNeck);
-    Ellipse(X - FHeadRadius div 2, Y - FBodyLen - FNeck - 2 * FHeadRadius + FHeadRadius div 2, X + FHeadRadius div 2,
-      Y - FBodyLen - FNeck);
+    MoveTo(Round(X + 40 * cos(angle)), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle)));
+    LineTo(Round(X + 45 * cos(angle)), Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle)) - FNeck);
+    Ellipse(Round(X + 45 * cos(angle)) - FHeadRadius div 2,
+      Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle) - FNeck - 2 * FHeadRadius + FHeadRadius div 2),
+      Round(X + 45 * cos(angle)) + FHeadRadius div 2, Round(Y - FBodyLen + (FBodyLen div 3) * cos(angle)) - FNeck);
+
   end;
 end;
 
