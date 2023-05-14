@@ -24,6 +24,7 @@ type
     FBuff: TBitMap;
     FSkier: TSkier;
     procedure DrawTree(XL, YD, Count: SmallInt);
+    procedure DrawFinishGates;
   public
     destructor Destroy; overload;
     procedure DrawBackground;
@@ -89,6 +90,54 @@ begin
   end;
 end;
 
+procedure TMainFrom.DrawFinishGates;
+
+procedure TextOutAngle(X, Y, aAngle, aSize: Integer; Txt: String);
+var
+  hFont, Fontold: integer;
+  DC: hdc;
+  Fontname: string;
+begin
+  if length(txt) = 0 then
+    Exit;
+  DC:= Screen.ActiveForm.Canvas.handle;
+  SetBkMode(DC, transparent);
+  Fontname:= Screen.ActiveForm.Canvas.Font.name;
+  hFont:= CreateFont(-aSize,0, aAngle*10,0, fw_normal,0, 0,
+  0,1,4,$10,2,4,PChar(Fontname));
+  Fontold:= SelectObject(DC, hFont);
+  TextOut(DC,x,y,PChar(txt), length(txt));
+  SelectObject(DC, Fontold);
+  DeleteObject(hFont);
+end;
+
+var
+  pW, LX, RX, LY, RY: SmallInt;
+  colP, colB: TColor;
+begin
+  pW := 10;
+  colP := 0;
+  colB := 0;
+  SetPen(colP, colB, pW);
+
+  LX := ClientWidth * 3 div 5;
+  LY := ClientHeight div 3;
+  RX := ClientWidth - 10;
+  RY := ClientHeight * 3 div 5;
+  with FBuff.Canvas do
+  begin
+    MoveTo(LX, ClientHeight);
+    LineTo(LX, LY);
+    LineTo(RX, 0);
+    LineTo(RX, RY);
+    MoveTo(LX, LY + ClientHeight div 7);
+    LineTo(RX, ClientHeight div 7);
+
+  end;
+  TextOutAngle(LX + (RX - LX) div 3, LY - (LY - ClientHeight div 7) div 2, 26, (LY - ClientHeight div 7) div 2, 'FINISH');
+  SetPen(colP, colB, pW);
+end;
+
 procedure TMainFrom.DrawTree(XL, YD, Count: SmallInt);
 var
   H, W, XR, YT, XM, pW: SmallInt;
@@ -146,6 +195,7 @@ begin
   FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
   FSkier.Draw(400, 400);
   DrawBackground;
+  DrawFinishGates;
   pbAnimate.Canvas.Draw(0, 0, FBuff);
 end;
 
