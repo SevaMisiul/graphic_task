@@ -7,7 +7,6 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, SkierUnit, Vcl.StdCtrls,
   Vcl.MPlayer, FanUnit;
 
-
 type
   TMainForm = class(TForm)
     pbAnimate: TPaintBox;
@@ -26,7 +25,7 @@ type
     FStartTime: Integer;
     FIsCreating: Boolean;
     FBuff: TBitMap;
-    FSkier: TSkier;
+    FSkierLoser, FSkierWinner: TSkier;
     FFanArr: array [1 .. 14] of TFan;
     procedure ComleteAnimation;
     procedure DrawTree(XL, YD, Count: SmallInt);
@@ -68,8 +67,10 @@ begin
     FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
     X := Round(ClientWidth * 4 div 5 * tDelta / 15000);
     Angle := Abs(90 * ((tDelta div 1000) mod 2) - 90 * (tDelta mod 1000) / 1000);
-    FSkier.Draw(X, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 13 div 14),
+    FSkierLoser.Draw(X, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 13 div 14),
       1 + 1.8 * tDelta / 15000, Angle);
+    FSkierWinner.Draw(X + ClientWidth div 20, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight),
+      1 + 1.8 * tDelta / 20000, Angle);
     DrawFans(tDelta);
     DrawBackground;
     pbAnimate.Canvas.Draw(0, 0, FBuff);
@@ -186,7 +187,6 @@ begin
   colB := $3F00CF;
   SetPen(colP, colB, pW, FBuff);
 
-
   LX := ClientWidth * 3 div 5;
   LY := ClientHeight div 3;
   RX := ClientWidth - 10;
@@ -205,47 +205,47 @@ begin
     LetterWidth := (RX - LX) div ('FINISH'.Length + 12);
     TxtHeight := ClientHeight div 20;
 
-      Inc(LX, (RX - LX) div 3);                               {F}
-      MoveTo(LX, LY);
-      LineTo(LX, TopLine(LX) + ClientHeight div 30);
-      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
-      MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
-      LineTo(LX + LetterWidth div 2, TopLine(LX + LetterWidth div 2) + 2 * ClientHeight div 30);
+    Inc(LX, (RX - LX) div 3); { F }
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+    MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+    LineTo(LX + LetterWidth div 2, TopLine(LX + LetterWidth div 2) + 2 * ClientHeight div 30);
 
-      Inc(LX, ClientWidth div 30);                                          {I}
-      Dec(LY, LetterWidth);
-      MoveTo(LX, LY);
-      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    Inc(LX, ClientWidth div 30); { I }
+    Dec(LY, LetterWidth);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
 
-      Inc(LX, ClientWidth div 50);                                   {N}
-      Dec(LY, LetterWidth div 2);
-      MoveTo(LX, LY);
-      LineTo(LX, TopLine(LX) + ClientHeight div 30);
-      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 20 + TxtHeight);
-      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30 );
+    Inc(LX, ClientWidth div 50); { N }
+    Dec(LY, LetterWidth div 2);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 20 + TxtHeight);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
 
-      Inc(LX, ClientWidth div 25);                                          {I}
-      Dec(LY, LetterWidth);
-      MoveTo(LX, LY);
-      LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    Inc(LX, ClientWidth div 25); { I }
+    Dec(LY, LetterWidth);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
 
-      Inc(LX, ClientWidth div 50);                                          {S}
-      Dec(LY, LetterWidth div 3);
-      MoveTo(LX, LY);
-      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight);
-      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 23 + TxtHeight div 2);
-      LineTo(LX, TopLine(LX) + 2 * ClientHeight div 28);
-      LineTo(LX, TopLine(LX) + ClientHeight div 30);
-      LineTo(LX + LetterWidth, TopLine(LX + LetterWidth)+ ClientHeight div 31);
+    Inc(LX, ClientWidth div 50); { S }
+    Dec(LY, LetterWidth div 3);
+    MoveTo(LX, LY);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 23 + TxtHeight);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 23 + TxtHeight div 2);
+    LineTo(LX, TopLine(LX) + 2 * ClientHeight div 28);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 31);
 
-      Inc(LX, ClientWidth div 30);                                          {H}
-      Dec(LY, ClientHeight div 30);
-      MoveTo(LX, LY);
-      LineTo(LX, TopLine(LX) + ClientHeight div 30);
-     MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
-     LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + 2 * ClientHeight div 30);
-      MoveTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
-      LineTo(LX + LetterWidth , TopLine(LX + LetterWidth) + ClientHeight div 25 + TxtHeight);
+    Inc(LX, ClientWidth div 30); { H }
+    Dec(LY, ClientHeight div 30);
+    MoveTo(LX, LY);
+    LineTo(LX, TopLine(LX) + ClientHeight div 30);
+    MoveTo(LX, TopLine(LX) + 2 * ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + 2 * ClientHeight div 30);
+    MoveTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 30);
+    LineTo(LX + LetterWidth, TopLine(LX + LetterWidth) + ClientHeight div 25 + TxtHeight);
   end;
   SetPen(colP, colB, pW, FBuff);
 
@@ -297,7 +297,8 @@ begin
     FBuff.SetSize(pbAnimate.Width, pbAnimate.Height);
     X := 0;
     Y := ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 13 div 14);
-    FSkier := TSkier.Create(FBuff, X, Y);
+    FSkierLoser := TSkier.Create(FBuff, X, Y);
+    FSkierWinner := TSkier.Create(FBuff, X, Y - ClientHeight div 20);
     for I := 1 to 14 do
       FFanArr[I] := TFan.Create(FBuff);
     FIsCreating := False;
