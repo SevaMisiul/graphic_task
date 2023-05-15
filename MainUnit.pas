@@ -60,16 +60,19 @@ var
   Angle: Double;
 begin
   tDelta := GetTickCount - FStartTime;
-  if tDelta >= 15000 then
+  if tDelta >= 20000 then
     ComleteAnimation
   else
   begin
     FBuff.Canvas.FillRect(Rect(0, 0, ClientWidth, ClientHeight));
     X := Round(ClientWidth * 4 div 5 * tDelta / 15000);
     Angle := Abs(90 * ((tDelta div 1000) mod 2) - 90 * (tDelta mod 1000) / 1000);
+    if tDelta <= 15000 then
     FSkierLoser.Draw(X, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 13 div 14),
       1 + 1.8 * tDelta / 15000, Angle);
-    FSkierWinner.Draw(X + ClientWidth div 20, ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight),
+
+      X := Round(ClientWidth * 4 div 5 * tDelta / 20000);
+    FSkierWinner.Draw(X + ClientWidth div 20, ClientHeight - Round(X * 3/4*(-ClientHeight / ClientWidth) +  ClientHeight),
       1 + 1.8 * tDelta / 20000, Angle);
     DrawFans(tDelta);
     DrawBackground;
@@ -298,7 +301,9 @@ begin
     X := 0;
     Y := ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight * 13 div 14);
     FSkierLoser := TSkier.Create(FBuff, X, Y);
-    FSkierWinner := TSkier.Create(FBuff, X, Y - ClientHeight div 20);
+    X :=  ClientWidth div 20 ;
+    Y := ClientHeight - Round(X * (-ClientHeight / ClientWidth) + ClientHeight);
+    FSkierWinner := TSkier.Create(FBuff, X , Y);
     for I := 1 to 14 do
       FFanArr[I] := TFan.Create(FBuff);
     FIsCreating := False;
